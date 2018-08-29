@@ -7,6 +7,8 @@ namespace StrangeJson
 {
 	public class AppContextView : ContextView
 	{
+		public Transform generatedContentLocation;
+
 	    private void Awake()
 		{
 			context = new AppContext(this);
