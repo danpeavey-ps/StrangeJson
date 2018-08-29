@@ -1,0 +1,10 @@
+{
+    "name": "StrangeJson",
+    "references": [
+        "strangeioc"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
