@@ -487,9 +487,10 @@ namespace strange.framework.impl
 				// Check Whitelist if it exists
 				if (bindingWhitelist != null)
 				{
+					bindingWhitelist.ForEach(val => UnityEngine.Debug.LogFormat("Whitelist value: {0}, type: {1}.", val.ToString(), val.GetType().Name));
 					foreach (object value in valueList)
 					{
-						if (bindingWhitelist.IndexOf (value) == -1)
+						if (bindingWhitelist.IndexOf (value.ToString()) == -1)
 						{
 							throw new BinderException ("Value " + value.ToString () + " not found on whitelist for " + this.ToString () + ".", BinderExceptionType.RUNTIME_FAILED_WHITELIST_CHECK);
 						}
@@ -578,7 +579,7 @@ namespace strange.framework.impl
 		{
 			List<object> conformed = new List<object> ();
 
-			string t = bindObject.GetType().ToString ();
+			string t = bindObject.GetType().ToString();
 			if (t.IndexOf ("System.Collections.Generic.List") > -1)
 			{
 				return bindObject as List<object>;

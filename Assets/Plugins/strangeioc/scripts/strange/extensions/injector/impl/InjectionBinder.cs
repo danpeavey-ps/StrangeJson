@@ -173,10 +173,16 @@ namespace strange.extensions.injector.impl
 		{
 			IBinding binding = null;
 
+			keyList.ForEach(key => UnityEngine.Debug.LogFormat("Key: {0}", key));
+			valueList.ForEach(value => UnityEngine.Debug.LogFormat("Value: {0}", value));
+
 			// Bind in order
 			foreach (object key in keyList)
 			{
 				Type keyType = Type.GetType (key as string);
+				UnityEngine.Debug.LogFormat("Key Name: {0}, {1}", key.ToString(), key as string);
+				UnityEngine.Debug.LogFormat("As Type: {0}", Type.GetType(key as string).ToString());
+				UnityEngine.Debug.LogFormat("This is the result: {0} over to {1}.", key, Type.GetType(key as string));
 				if (keyType == null)
 				{
 					throw new BinderException ("A runtime Injection Binding has resolved to null. Did you forget to register its fully-qualified name?\n Key:" + key, BinderExceptionType.RUNTIME_NULL_VALUE);

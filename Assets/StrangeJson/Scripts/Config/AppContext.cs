@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using strange.extensions.context.impl;
 using UnityEngine;
@@ -13,11 +14,30 @@ namespace StrangeJson
         {
             appContextView = (AppContextView)view;
         }
+
+        protected override void addCoreComponents()
+        {
+            base.addCoreComponents();
+
+            // Generate whitelist for injections.
+            // Technically there is nothing stopping us from making
+            // this whitelist configurable too via some schema.
+            List<object> injectionWhiteList = new List<object>()
+            {
+                typeof(IStateModel),
+                typeof(AppState),
+                typeof(DebugAppState)
+            };
+            Debug.LogFormat("TESTING THIS:: {0}", System.Type.GetType(typeof(DebugAppState).FullName).FullName);
+            injectionBinder.WhitelistBindings(injectionWhiteList);
+        }
     
         protected override void mapBindings()
         {
             base.mapBindings();
 
+
+            // Base App Bindings
             injectionBinder.Bind<Transform>()
                 .ToValue(appContextView.generatedContentLocation)
                 .ToName(AppInjectionKeys.GeneratedContentLocation);
@@ -26,15 +46,17 @@ namespace StrangeJson
                 .ToValue(Resources.Load<ViewPrefabMap>("ViewPrefabMap"))
                 .ToName(AppInjectionKeys.ViewPrefabMap);
             
-            injectionBinder.Bind<IStateModel>().To<AppState>().ToSingleton();
-            injectionBinder.Bind<ThrowDebugSignal>().ToSingleton();
-            commandBinder.Bind<ThrowDebugSignal>().To<ThrowDebugCommand>();
+            injectionBinder.Bind<IStateModel>().To<AppState>().ToSingleton().Weak();
             commandBinder.Bind<CreateViewSignal>().To<CreateViewCommand>();
+            commandBinder.Bind<OutputAssetMapContentsSignal>().To<OutputAssetMapContentsCommand>();
             mediationBinder.Bind<SimpleGeneratedView>()
                 .ToAbstraction<IGeneratedView>()
                 .To<GeneratedMediator>();
+            
+            // "Configurable Bindings" from an Application Response.
+            var injectionBindings = Resources.Load<TextAsset>("BaseInjectionBindings").text;
+            injectionBinder.ConsumeBindings(injectionBindings);
 
-            // injectionBinder.ConsumeBindings();
             // mediationBinder.ConsumeBindings();
             // commandBinder.ConsumeBindings();
         }
@@ -43,24 +65,8 @@ namespace StrangeJson
         {
             base.Launch();
 
-            var debugMessageSignal = injectionBinder.GetInstance<ThrowDebugSignal>();
-
-            var list = injectionBinder.GetInstance<IViewAssetMap>(AppInjectionKeys.ViewPrefabMap).ViewAssets;
-            var lastInList = list.Last();
-            
-            StringBuilder message = new StringBuilder();
-            message.Append("Retriving all listed prefabs in ViewPrefabMap: ");
-            foreach (var asset in list)
-            {
-                message.Append(asset.ViewType.Name);
-
-                if (asset != lastInList)
-                    message.Append(", ");
-                else
-                    message.Append(".");
-            }
-
-            debugMessageSignal.Dispatch(message.ToString());
+            var outputSignal = injectionBinder.GetInstance<OutputAssetMapContentsSignal>();
+            outputSignal.Dispatch();
         }
     }
 }

@@ -1,0 +1,9 @@
+[
+    {
+        "Bind": "StrangeJson.IStateModel",
+        "To": "StrangeJson.AppState",
+        "Options": [
+            "ToSingleton"
+        ]
+    }
+]
